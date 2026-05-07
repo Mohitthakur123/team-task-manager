@@ -43,15 +43,37 @@ const createProject = async (req, res) => {
 
 
 // GET ALL PROJECTS
+// GET ALL PROJECTS
+
 const getProjects = async (req, res) => {
 
     try {
 
-        const projects = await Project.find({
-            members: req.user.id
-        })
-            .populate("admin", "name email")
-            .populate("members", "name email");
+        let projects;
+
+        // ADMIN CAN SEE ALL PROJECTS CREATED BY HIM
+
+        if (req.user.role === "admin") {
+
+            projects = await Project.find({
+                admin: req.user.id
+            })
+            .populate("admin", "name email role")
+            .populate("members", "name email role");
+
+        }
+
+        // MEMBERS CAN SEE ASSIGNED PROJECTS
+
+        else {
+
+            projects = await Project.find({
+                members: req.user.id
+            })
+            .populate("admin", "name email role")
+            .populate("members", "name email role");
+
+        }
 
         res.status(200).json({
             success: true,
