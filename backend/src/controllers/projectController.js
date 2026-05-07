@@ -154,10 +154,49 @@ const addMember = async (req, res) => {
         });
     }
 };
+// UPDATE PROJECT STATUS
 
+const updateProjectStatus = async (req, res) => {
+
+    try {
+
+        const { projectId, status } = req.body;
+
+        const project = await Project.findById(projectId);
+
+        if (!project) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Project not found"
+            });
+        }
+
+        // UPDATE STATUS
+
+        project.status = status;
+
+        await project.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Project status updated",
+            project
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
 module.exports = {
     createProject,
     getProjects,
     addMember,
-    getMembers
+    getMembers,
+    updateProjectStatus
 };
