@@ -22,7 +22,7 @@ const createProject = async (req, res) => {
             title,
             description,
             admin: req.user.id,
-            members: [req.user.id, ...members]
+            members
         });
 
         res.status(201).json({
@@ -50,8 +50,8 @@ const getProjects = async (req, res) => {
         const projects = await Project.find({
             members: req.user.id
         })
-        .populate("admin", "name email")
-        .populate("members", "name email");
+            .populate("admin", "name email")
+            .populate("members", "name email");
 
         res.status(200).json({
             success: true,
