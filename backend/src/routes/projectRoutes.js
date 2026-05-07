@@ -3,7 +3,8 @@ const express = require("express");
 const {
     createProject,
     getProjects,
-    addMember
+    addMember,
+    getMembers
 } = require("../controllers/projectController");
 
 const protect = require("../middleware/authMiddleware");
@@ -27,6 +28,17 @@ router.get(
     protect,
     getProjects
 );
+
+
+// GET MEMBERS
+router.get(
+    "/members",
+    protect,
+    authorizeRoles("admin"),
+    getMembers
+);
+
+
 // ADD MEMBER
 router.put(
     "/add-member",

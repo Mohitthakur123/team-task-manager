@@ -1,4 +1,5 @@
 const Project = require("../models/Project");
+const User = require("../models/User");
 
 
 // CREATE PROJECT
@@ -6,7 +7,7 @@ const createProject = async (req, res) => {
 
     try {
 
-        const { title, description } = req.body;
+        const { title, description, members } = req.body;
 
         // Validation
         if (!title || !description) {
@@ -21,7 +22,7 @@ const createProject = async (req, res) => {
             title,
             description,
             admin: req.user.id,
-            members: [req.user.id]
+            members: [req.user.id, ...members]
         });
 
         res.status(201).json({
@@ -65,6 +66,32 @@ const getProjects = async (req, res) => {
         });
     }
 };
+
+
+// GET MEMBERS
+const getMembers = async (req, res) => {
+
+    try {
+
+        const members = await User.find({
+            role: "member"
+        }).select("name email");
+
+        res.status(200).json({
+            success: true,
+            members
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
 // ADD MEMBER TO PROJECT
 const addMember = async (req, res) => {
 
@@ -131,5 +158,6 @@ const addMember = async (req, res) => {
 module.exports = {
     createProject,
     getProjects,
-    addMember
+    addMember,
+    getMembers
 };
