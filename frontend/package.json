@@ -3,16 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+
+  "engines": {
+    "node": "20.x"
+  },
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
+
   "dependencies": {
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
+
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
