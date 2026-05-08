@@ -56,21 +56,13 @@ function App() {
         {/* PROJECTS - ADMIN ONLY */}
 
         <Route
-          path="/projects"
-          element={
-            <ProtectedRoute>
-
-              {
-                user?.role === "admin"
-
-                  ? <Projects />
-
-                  : <Navigate to="/dashboard" />
-              }
-
-            </ProtectedRoute>
-          }
-        />
+  path="/projects"
+  element={
+    <ProtectedRoute>
+      <Projects />
+    </ProtectedRoute>
+  }
+/>
 
         {/* TASKS */}
 
