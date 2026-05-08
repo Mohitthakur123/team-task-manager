@@ -16,24 +16,6 @@ const createTask = async (req, res) => {
             dueDate
         } = req.body;
 
-        const validPriorities = [
-            "low",
-            "medium",
-            "high"
-        ];
-
-        if (
-            priority &&
-            !validPriorities.includes(priority)
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Invalid priority value"
-            });
-        }
-
-        // Validation
         if (
             !title ||
             !description ||
@@ -48,7 +30,6 @@ const createTask = async (req, res) => {
             });
         }
 
-        // Find project
         const project = await Project.findById(projectId);
 
         if (!project) {
@@ -59,25 +40,24 @@ const createTask = async (req, res) => {
             });
         }
 
-        // Only admin can create tasks
-        if (project.admin.toString() !== req.user.id) {
+        // ONLY PROJECT CREATOR
+        if (project.createdBy.toString() !== req.user.id) {
 
             return res.status(403).json({
                 success: false,
-                message: "Only admin can create tasks"
+                message: "Only admin can create task"
             });
         }
 
-        // Check assigned user belongs to project
+        // CHECK MEMBER EXISTS
         if (!project.members.includes(assignedTo)) {
 
             return res.status(400).json({
                 success: false,
-                message: "User is not a project member"
+                message: "User is not project member"
             });
         }
 
-        // Create task
         const task = await Task.create({
             title,
             description,
@@ -85,7 +65,8 @@ const createTask = async (req, res) => {
             assignedTo,
             assignedBy: req.user.id,
             priority,
-            dueDate
+            dueDate,
+            status: "todo"
         });
 
         res.status(201).json({
