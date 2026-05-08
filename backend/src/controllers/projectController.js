@@ -7,7 +7,7 @@ const createProject = async (req, res) => {
 
     try {
 
-        const { title, description } = req.body;
+        const { title, description, members } = req.body;
 
         if (!title || !description) {
 
@@ -21,7 +21,7 @@ const createProject = async (req, res) => {
             title,
             description,
             createdBy: req.user.id,
-            members: req.body.members || []
+            members: members || []
         });
 
         res.status(201).json({
@@ -52,10 +52,8 @@ const getProjects = async (req, res) => {
         if (req.user.role === "admin") {
 
             projects = await Project.find({
-                admin: req.user.id
-            })
-                .populate("members", "name email role");
-
+                createdBy: req.user.id
+            }).populate("members", "name email role");
         }
 
         // MEMBER
@@ -63,8 +61,7 @@ const getProjects = async (req, res) => {
 
             projects = await Project.find({
                 members: req.user.id
-            })
-                .populate("admin", "name email role");
+            }).populate("members", "name email role");
         }
 
         res.status(200).json({
@@ -108,7 +105,7 @@ const getMembers = async (req, res) => {
 
 
 
-// ADD MEMBER TO PROJECT
+// ADD MEMBER
 const addMember = async (req, res) => {
 
     try {
@@ -125,8 +122,8 @@ const addMember = async (req, res) => {
             });
         }
 
-        // ONLY ADMIN
-        if (project.admin.toString() !== req.user.id) {
+        // ONLY CREATOR
+        if (project.createdBy.toString() !== req.user.id) {
 
             return res.status(403).json({
                 success: false,
@@ -134,18 +131,13 @@ const addMember = async (req, res) => {
             });
         }
 
-        // PREVENT DUPLICATES
-        if (project.members.includes(userId)) {
+        // PREVENT DUPLICATE
+        if (!project.members.includes(userId)) {
 
-            return res.status(400).json({
-                success: false,
-                message: "Member already added"
-            });
+            project.members.push(userId);
+
+            await project.save();
         }
-
-        project.members.push(userId);
-
-        await project.save();
 
         res.status(200).json({
             success: true,
@@ -217,8 +209,8 @@ const deleteProject = async (req, res) => {
             });
         }
 
-        // ONLY ADMIN
-        if (project.admin.toString() !== req.user.id) {
+        // ONLY CREATOR
+        if (project.createdBy.toString() !== req.user.id) {
 
             return res.status(403).json({
                 success: false,
