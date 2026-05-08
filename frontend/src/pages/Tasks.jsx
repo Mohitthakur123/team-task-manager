@@ -555,7 +555,7 @@ function Tasks() {
                 {/* MEMBER ACTIONS */}
 
                 {
-                  user?.role === "member"
+                  user?.role === "admin"
 
                   &&
 

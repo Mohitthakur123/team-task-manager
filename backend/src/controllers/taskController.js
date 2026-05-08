@@ -88,17 +88,11 @@ const getTasks = async (req, res) => {
 
         let tasks;
 
-        // ADMIN CAN SEE ALL TASKS
+        // ADMIN
 
         if (req.user.role === "admin") {
 
-            tasks = await Task.find({
-
-                status: {
-                    $ne: "done"
-                }
-
-            })
+            tasks = await Task.find()
 
             .populate(
                 "project",
@@ -113,10 +107,9 @@ const getTasks = async (req, res) => {
             .sort({
                 createdAt: -1
             });
-
         }
 
-        // MEMBER CAN SEE ONLY THEIR TASKS
+        // MEMBER
 
         else {
 
@@ -125,7 +118,6 @@ const getTasks = async (req, res) => {
                 assignedTo: {
                     $in: [req.user.id]
                 }
-
             })
 
             .populate(
@@ -144,14 +136,18 @@ const getTasks = async (req, res) => {
         }
 
         res.status(200).json({
+
             success: true,
+
             tasks
         });
 
     } catch (error) {
 
         res.status(500).json({
+
             success: false,
+
             message: error.message
         });
     }

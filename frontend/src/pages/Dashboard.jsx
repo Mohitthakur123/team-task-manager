@@ -1,11 +1,11 @@
+import { useEffect, useState } from "react";
+
 import {
-  FaProjectDiagram,
   FaTasks,
   FaClock,
-  FaCheckCircle
+  FaCheckCircle,
+  FaProjectDiagram
 } from "react-icons/fa";
-
-import { useEffect, useState } from "react";
 
 import Sidebar from "../components/Sidebar";
 
@@ -14,43 +14,44 @@ import API from "../services/api";
 function Dashboard() {
 
   const user =
-    JSON.parse(localStorage.getItem("user"));
+    JSON.parse(
+      localStorage.getItem("user")
+    );
 
-  const [stats, setStats] =
+  const [dashboardData, setDashboardData] =
     useState({
+
       totalProjects: 0,
+
       totalTasks: 0,
+
       pendingTasks: 0,
+
       completedTasks: 0,
-      overdueTasksCount: 0,
-      overdueTasks: []
+
+      overdueTasks: 0
     });
 
-  // FETCH DASHBOARD DATA
+  /* ================= FETCH DASHBOARD ================= */
 
-  const fetchDashboardData =
-    async () => {
+  const fetchDashboard = async () => {
 
-      try {
+    try {
 
-        const response =
-          await API.get(
-            "/dashboard"
-          );
+      const response =
+        await API.get("/dashboard");
 
-        setStats(
-          response.data.dashboard
-        );
+      setDashboardData(response.data);
 
-      } catch (error) {
+    } catch (error) {
 
-        console.log(error);
-      }
-    };
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
 
-    fetchDashboardData();
+    fetchDashboard();
 
   }, []);
 
@@ -62,22 +63,23 @@ function Dashboard() {
 
       <div className="dashboard-main">
 
-        {/* HEADER */}
-
         <div className="dashboard-header">
 
           <div>
 
             <h1>
-              Welcome,
-              {" "}
-              {user?.name}
+              Welcome, {user?.name}
             </h1>
 
             <p className="dashboard-subtitle">
 
-              Manage projects,
-              tasks and teams
+              {
+                user?.role === "admin"
+
+                ? "Manage projects and teams"
+
+                : "Track your assigned work"
+              }
 
             </p>
 
@@ -85,33 +87,35 @@ function Dashboard() {
 
         </div>
 
-        {/* DASHBOARD CARDS */}
-
         <div className="dashboard-cards">
 
-          {/* PROJECTS */}
+          {
+            user?.role === "admin"
 
-          <div className="card">
+            &&
 
-            <div className="card-top">
+            (
+              <div className="card">
 
-              <FaProjectDiagram
-                className="card-icon blue"
-              />
+                <div className="card-top">
 
-            </div>
+                  <FaProjectDiagram
+                    className="card-icon blue"
+                  />
 
-            <h3>
-              Total Projects
-            </h3>
+                </div>
 
-            <p>
-              {stats.totalProjects}
-            </p>
+                <h3>Total Projects</h3>
 
-          </div>
+                <p>
+                  {
+                    dashboardData.totalProjects
+                  }
+                </p>
 
-          {/* TOTAL TASKS */}
+              </div>
+            )
+          }
 
           <div className="card">
 
@@ -123,17 +127,15 @@ function Dashboard() {
 
             </div>
 
-            <h3>
-              Total Tasks
-            </h3>
+            <h3>Total Tasks</h3>
 
             <p>
-              {stats.totalTasks}
+              {
+                dashboardData.totalTasks
+              }
             </p>
 
           </div>
-
-          {/* PENDING */}
 
           <div className="card">
 
@@ -145,39 +147,15 @@ function Dashboard() {
 
             </div>
 
-            <h3>
-              Pending Tasks
-            </h3>
+            <h3>Pending Tasks</h3>
 
             <p>
-              {stats.pendingTasks}
+              {
+                dashboardData.pendingTasks
+              }
             </p>
 
           </div>
-
-          {/* OVERDUE */}
-
-          <div className="card">
-
-            <div className="card-top">
-
-              <FaClock
-                className="card-icon orange"
-              />
-
-            </div>
-
-            <h3>
-              Overdue Tasks
-            </h3>
-
-            <p>
-              {stats.overdueTasksCount}
-            </p>
-
-          </div>
-
-          {/* COMPLETED */}
 
           <div className="card">
 
@@ -189,119 +167,37 @@ function Dashboard() {
 
             </div>
 
-            <h3>
-              Completed Tasks
-            </h3>
+            <h3>Completed Tasks</h3>
 
             <p>
-              {stats.completedTasks}
+              {
+                dashboardData.completedTasks
+              }
+            </p>
+
+          </div>
+
+          <div className="card">
+
+            <div className="card-top">
+
+              <FaClock
+                className="card-icon orange"
+              />
+
+            </div>
+
+            <h3>Overdue Tasks</h3>
+
+            <p>
+              {
+                dashboardData.overdueTasks
+              }
             </p>
 
           </div>
 
         </div>
-
-        {/* OVERDUE TASKS */}
-
-        {
-          stats.overdueTasks?.length > 0 && (
-
-            <div
-              style={{
-                marginTop: "40px"
-              }}
-            >
-
-              <h2
-                style={{
-                  marginBottom: "20px"
-                }}
-              >
-                Overdue Tasks
-              </h2>
-
-              <div className="project-list">
-
-                {
-                  stats.overdueTasks.map(
-                    (task) => (
-
-                      <div
-                        className="project-card"
-                        key={task._id}
-                      >
-
-                        <div>
-
-                          <h3>
-                            {task.title}
-                          </h3>
-
-                          <p>
-                            {task.description}
-                          </p>
-
-                          <p>
-                            <strong>
-                              Project:
-                            </strong>
-                            {" "}
-                            {
-                              task.project?.title
-                            }
-                          </p>
-
-                          <p>
-                            <strong>
-                              Due Date:
-                            </strong>
-                            {" "}
-                            {
-                              new Date(
-                                task.dueDate
-                              ).toLocaleDateString()
-                            }
-                          </p>
-
-                          <p>
-                            <strong>
-                              Assigned Members:
-                            </strong>
-                          </p>
-
-                          <div>
-
-                            {
-                              task.assignedTo?.map(
-                                (member) => (
-
-                                  <span
-                                    key={member._id}
-                                    className="member-badge"
-                                  >
-                                    {member.name}
-                                  </span>
-
-                                )
-                              )
-                            }
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    )
-                  )
-                }
-
-              </div>
-
-            </div>
-
-          )
-        }
 
       </div>
 
