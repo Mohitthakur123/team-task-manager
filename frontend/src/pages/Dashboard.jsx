@@ -16,54 +16,37 @@ function Dashboard() {
   const user =
     JSON.parse(localStorage.getItem("user"));
 
-  const [stats, setStats] = useState({
-    totalProjects: 0,
-    totalTasks: 0,
-    pendingTasks: 0,
-    completedTasks: 0
-  });
+  const [stats, setStats] =
+    useState({
+      totalProjects: 0,
+      totalTasks: 0,
+      pendingTasks: 0,
+      completedTasks: 0,
+      overdueTasksCount: 0,
+      overdueTasks: []
+    });
 
-  // FETCH DATA
-  const fetchDashboardData = async () => {
+  // FETCH DASHBOARD DATA
 
-    try {
+  const fetchDashboardData =
+    async () => {
 
-      const projectResponse =
-        await API.get("/projects/all");
+      try {
 
-      const taskResponse =
-        await API.get("/tasks/my-tasks");
+        const response =
+          await API.get(
+            "/dashboard"
+          );
 
-      const projects =
-        projectResponse.data.projects || [];
-
-      const tasks =
-        taskResponse.data.tasks || [];
-
-      const pendingTasks =
-        tasks.filter(
-          (task) => task.status !== "done"
+        setStats(
+          response.data.dashboard
         );
 
-      const completedTasks =
-        tasks.filter(
-          (task) => task.status === "done"
-        );
+      } catch (error) {
 
-      setStats({
-        totalProjects: projects.length,
-        totalTasks: tasks.length,
-        pendingTasks:
-          pendingTasks.length,
-        completedTasks:
-          completedTasks.length
-      });
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
+        console.log(error);
+      }
+    };
 
   useEffect(() => {
 
@@ -79,6 +62,8 @@ function Dashboard() {
 
       <div className="dashboard-main">
 
+        {/* HEADER */}
+
         <div className="dashboard-header">
 
           <div>
@@ -91,13 +76,8 @@ function Dashboard() {
 
             <p className="dashboard-subtitle">
 
-              {
-                user?.role === "admin"
-
-                  ? "Manage projects and teams"
-
-                  : "Track your assigned tasks"
-              }
+              Manage projects,
+              tasks and teams
 
             </p>
 
@@ -105,31 +85,31 @@ function Dashboard() {
 
         </div>
 
+        {/* DASHBOARD CARDS */}
+
         <div className="dashboard-cards">
 
-          {/* ADMIN ONLY */}
+          {/* PROJECTS */}
 
-          {user?.role === "admin" && (
+          <div className="card">
 
-            <div className="card">
+            <div className="card-top">
 
-              <div className="card-top">
-
-                <FaProjectDiagram
-                  className="card-icon blue"
-                />
-
-              </div>
-
-              <h3>Total Projects</h3>
-
-              <p>
-                {stats.totalProjects}
-              </p>
+              <FaProjectDiagram
+                className="card-icon blue"
+              />
 
             </div>
 
-          )}
+            <h3>
+              Total Projects
+            </h3>
+
+            <p>
+              {stats.totalProjects}
+            </p>
+
+          </div>
 
           {/* TOTAL TASKS */}
 
@@ -143,7 +123,9 @@ function Dashboard() {
 
             </div>
 
-            <h3>Total Tasks</h3>
+            <h3>
+              Total Tasks
+            </h3>
 
             <p>
               {stats.totalTasks}
@@ -163,10 +145,34 @@ function Dashboard() {
 
             </div>
 
-            <h3>Pending Tasks</h3>
+            <h3>
+              Pending Tasks
+            </h3>
 
             <p>
               {stats.pendingTasks}
+            </p>
+
+          </div>
+
+          {/* OVERDUE */}
+
+          <div className="card">
+
+            <div className="card-top">
+
+              <FaClock
+                className="card-icon orange"
+              />
+
+            </div>
+
+            <h3>
+              Overdue Tasks
+            </h3>
+
+            <p>
+              {stats.overdueTasksCount}
             </p>
 
           </div>
@@ -183,7 +189,9 @@ function Dashboard() {
 
             </div>
 
-            <h3>Completed Tasks</h3>
+            <h3>
+              Completed Tasks
+            </h3>
 
             <p>
               {stats.completedTasks}
@@ -192,6 +200,108 @@ function Dashboard() {
           </div>
 
         </div>
+
+        {/* OVERDUE TASKS */}
+
+        {
+          stats.overdueTasks?.length > 0 && (
+
+            <div
+              style={{
+                marginTop: "40px"
+              }}
+            >
+
+              <h2
+                style={{
+                  marginBottom: "20px"
+                }}
+              >
+                Overdue Tasks
+              </h2>
+
+              <div className="project-list">
+
+                {
+                  stats.overdueTasks.map(
+                    (task) => (
+
+                      <div
+                        className="project-card"
+                        key={task._id}
+                      >
+
+                        <div>
+
+                          <h3>
+                            {task.title}
+                          </h3>
+
+                          <p>
+                            {task.description}
+                          </p>
+
+                          <p>
+                            <strong>
+                              Project:
+                            </strong>
+                            {" "}
+                            {
+                              task.project?.title
+                            }
+                          </p>
+
+                          <p>
+                            <strong>
+                              Due Date:
+                            </strong>
+                            {" "}
+                            {
+                              new Date(
+                                task.dueDate
+                              ).toLocaleDateString()
+                            }
+                          </p>
+
+                          <p>
+                            <strong>
+                              Assigned Members:
+                            </strong>
+                          </p>
+
+                          <div>
+
+                            {
+                              task.assignedTo?.map(
+                                (member) => (
+
+                                  <span
+                                    key={member._id}
+                                    className="member-badge"
+                                  >
+                                    {member.name}
+                                  </span>
+
+                                )
+                              )
+                            }
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    )
+                  )
+                }
+
+              </div>
+
+            </div>
+
+          )
+        }
 
       </div>
 

@@ -59,13 +59,17 @@ const createTask = async (
 
         // CHECK ALL MEMBERS BELONG TO PROJECT
 
-        const allMembersValid =
-            assignedTo.every(
-                (memberId) =>
-                    project.members.includes(
-                        memberId
-                    )
-            );
+       const allMembersValid =
+    assignedTo.every(
+        (memberId) =>
+
+            project.members.some(
+                (member) =>
+
+                    member.toString()
+                    === memberId
+            )
+    );
 
         if (!allMembersValid) {
 
