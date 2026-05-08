@@ -2,6 +2,8 @@ import {
   FaProjectDiagram,
   FaClock,
   FaCheckCircle,
+  FaTasks,
+  FaExclamationCircle,
   FaSignOutAlt,
 } from "react-icons/fa";
 
@@ -9,7 +11,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
-
 import API from "../services/api";
 
 function Dashboard() {
@@ -20,12 +21,10 @@ function Dashboard() {
     totalProjects: 0,
     totalTasks: 0,
     pendingTasks: 0,
-    completedTasks: 0,
     inProgressTasks: 0,
+    completedTasks: 0,
     overdueTasks: 0,
   });
-
-  const [user, setUser] = useState(null);
 
   const handleLogout = () => {
 
@@ -39,17 +38,53 @@ function Dashboard() {
 
     try {
 
-      const dashboardResponse =
-        await API.get("/dashboard");
+      const projectResponse =
+        await API.get("/projects/all");
 
-      const profileResponse =
-        await API.get("/auth/profile");
+      const taskResponse =
+        await API.get("/tasks/my-tasks");
 
-      setUser(profileResponse.data.user);
+      const projects =
+        projectResponse.data.projects || [];
 
-      setStats(
-        dashboardResponse.data.dashboard
-      );
+      const tasks =
+        taskResponse.data.tasks || [];
+
+      const pendingTasks =
+        tasks.filter(
+          (task) => task.status === "todo"
+        );
+
+      const inProgressTasks =
+        tasks.filter(
+          (task) =>
+            task.status === "in-progress"
+        );
+
+      const completedTasks =
+        tasks.filter(
+          (task) => task.status === "done"
+        );
+
+      const overdueTasks =
+        tasks.filter(
+          (task) =>
+            new Date(task.dueDate) <
+              new Date() &&
+            task.status !== "done"
+        );
+
+      setStats({
+        totalProjects: projects.length,
+        totalTasks: tasks.length,
+        pendingTasks: pendingTasks.length,
+        inProgressTasks:
+          inProgressTasks.length,
+        completedTasks:
+          completedTasks.length,
+        overdueTasks:
+          overdueTasks.length,
+      });
 
     } catch (error) {
 
@@ -78,7 +113,7 @@ function Dashboard() {
             <h1>Dashboard</h1>
 
             <p className="dashboard-subtitle">
-              Welcome back, {user?.name || "User"}
+              Welcome back
             </p>
 
           </div>
@@ -93,75 +128,39 @@ function Dashboard() {
         <div className="dashboard-cards">
 
           <div className="card">
-
-            <div className="card-top">
-              <FaProjectDiagram className="card-icon blue" />
-            </div>
-
+            <FaProjectDiagram className="card-icon blue" />
             <h3>Total Projects</h3>
-
             <p>{stats.totalProjects}</p>
-
           </div>
 
           <div className="card">
-
-            <div className="card-top">
-              <FaProjectDiagram className="card-icon blue" />
-            </div>
-
+            <FaTasks className="card-icon blue" />
             <h3>Total Tasks</h3>
-
             <p>{stats.totalTasks}</p>
-
           </div>
 
           <div className="card">
-
-            <div className="card-top">
-              <FaClock className="card-icon orange" />
-            </div>
-
+            <FaClock className="card-icon orange" />
             <h3>Pending Tasks</h3>
-
             <p>{stats.pendingTasks}</p>
-
           </div>
 
           <div className="card">
-
-            <div className="card-top">
-              <FaClock className="card-icon orange" />
-            </div>
-
+            <FaTasks className="card-icon orange" />
             <h3>In Progress</h3>
-
             <p>{stats.inProgressTasks}</p>
-
           </div>
 
           <div className="card">
-
-            <div className="card-top">
-              <FaCheckCircle className="card-icon green" />
-            </div>
-
+            <FaCheckCircle className="card-icon green" />
             <h3>Completed Tasks</h3>
-
             <p>{stats.completedTasks}</p>
-
           </div>
 
           <div className="card">
-
-            <div className="card-top">
-              <FaClock className="card-icon red" />
-            </div>
-
+            <FaExclamationCircle className="card-icon red" />
             <h3>Overdue Tasks</h3>
-
             <p>{stats.overdueTasks}</p>
-
           </div>
 
         </div>

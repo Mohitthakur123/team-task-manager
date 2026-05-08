@@ -5,67 +5,61 @@ const getDashboardData = async (req, res) => {
 
     try {
 
-        // Total Projects
-        const totalProjects = await Project.countDocuments({
-            admin: req.user.id
-        });
+        let projects;
+        let tasks;
 
-        // Total Tasks
-        const totalTasks = await Task.countDocuments({
-            assignedBy: req.user.id
-        });
+        // ADMIN
+        if (req.user.role === "admin") {
 
-        // Completed Tasks
-        const completedTasks = await Task.countDocuments({
-            assignedBy: req.user.id,
-            status: "Done"
-        });
+            projects = await Project.find({
+                createdBy: req.user.id
+            });
 
-        // Pending Tasks
-        const pendingTasks = await Task.countDocuments({
-            assignedBy: req.user.id,
-            status: "To Do"
-        });
+            tasks = await Task.find({
+                assignedBy: req.user.id
+            });
+        }
 
-        // In Progress Tasks
-        const inProgressTasks = await Task.countDocuments({
-            assignedBy: req.user.id,
-            status: "In Progress"
-        });
+        // MEMBER
+        else {
 
-        // Overdue Tasks
-        const overdueTasks = await Task.countDocuments({
-            assignedBy: req.user.id,
-            dueDate: { $lt: new Date() },
-            status: { $ne: "Done" }
-        });
+            projects = await Project.find({
+                members: req.user.id
+            });
 
-        // Tasks Per User
-        const tasksPerUser = await Task.aggregate([
-            {
-                $match: {
-                    assignedBy: req.user._id
-                }
-            },
-            {
-                $group: {
-                    _id: "$assignedTo",
-                    totalTasks: { $sum: 1 }
-                }
-            }
-        ]);
+            tasks = await Task.find({
+                assignedTo: req.user.id
+            });
+        }
+
+        const pendingTasks = tasks.filter(
+            (task) => task.status === "To Do"
+        );
+
+        const inProgressTasks = tasks.filter(
+            (task) => task.status === "In Progress"
+        );
+
+        const completedTasks = tasks.filter(
+            (task) => task.status === "Done"
+        );
+
+        const overdueTasks = tasks.filter(
+            (task) =>
+                new Date(task.dueDate) < new Date() &&
+                task.status !== "Done"
+        );
 
         res.status(200).json({
             success: true,
 
             dashboard: {
-                totalProjects,
-                totalTasks,
-                completedTasks,
-                pendingTasks,
-                inProgressTasks,
-                overdueTasks,
-                tasksPerUser
+                totalProjects: projects.length,
+                totalTasks: tasks.length,
+                pendingTasks: pendingTasks.length,
+                inProgressTasks: inProgressTasks.length,
+                completedTasks: completedTasks.length,
+                overdueTasks: overdueTasks.length
             }
         });
 

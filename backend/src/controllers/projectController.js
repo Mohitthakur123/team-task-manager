@@ -20,8 +20,8 @@ const createProject = async (req, res) => {
         const project = await Project.create({
             title,
             description,
-            admin: req.user.id,
-            members: []
+            createdBy: req.user.id,
+            members: req.body.members || []
         });
 
         res.status(201).json({
@@ -54,7 +54,7 @@ const getProjects = async (req, res) => {
             projects = await Project.find({
                 admin: req.user.id
             })
-            .populate("members", "name email role");
+                .populate("members", "name email role");
 
         }
 
@@ -64,7 +64,7 @@ const getProjects = async (req, res) => {
             projects = await Project.find({
                 members: req.user.id
             })
-            .populate("admin", "name email role");
+                .populate("admin", "name email role");
         }
 
         res.status(200).json({
