@@ -154,7 +154,7 @@ npm run dev
 
 ## Dashboard
 
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./screenshots/Dashboard.png)
 
 ---
 
