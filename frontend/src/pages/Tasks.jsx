@@ -9,7 +9,8 @@ function Tasks() {
   const user =
     JSON.parse(localStorage.getItem("user"));
 
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] =
+    useState([]);
 
   const [projects, setProjects] =
     useState([]);
@@ -166,198 +167,230 @@ function Tasks() {
       <div className="projects-page">
 
         <div className="project-header">
-          <h1>Tasks</h1>
+
+          <h1>
+            Tasks
+          </h1>
+
         </div>
 
         {/* ADMIN TASK FORM */}
 
-        {user?.role === "admin" && (
+        {
+          user?.role === "admin" && (
 
-          <div className="project-form">
+            <div className="task-form-container">
 
-            <input
-              type="text"
-              name="title"
-              placeholder="Task Title"
-              value={formData.title}
-              onChange={handleChange}
-            />
+              <div className="task-form">
 
-            <input
-              type="text"
-              name="description"
-              placeholder="Task Description"
-              value={formData.description}
-              onChange={handleChange}
-            />
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Task Title"
+                  value={formData.title}
+                  onChange={handleChange}
+                />
 
-            <select
-              name="projectId"
-              value={formData.projectId}
-              onChange={handleChange}
-            >
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Task Description"
+                  value={formData.description}
+                  onChange={handleChange}
+                />
 
-              <option value="">
-                Select Project
-              </option>
-
-              {projects.map((project) => (
-
-                <option
-                  key={project._id}
-                  value={project._id}
+                <select
+                  name="projectId"
+                  value={formData.projectId}
+                  onChange={handleChange}
                 >
-                  {project.title}
-                </option>
 
-              ))}
+                  <option value="">
+                    Select Project
+                  </option>
 
-            </select>
+                  {
+                    projects.map((project) => (
 
-            <select
-              name="assignedTo"
-              value={formData.assignedTo}
-              onChange={handleChange}
-            >
+                      <option
+                        key={project._id}
+                        value={project._id}
+                      >
+                        {project.title}
+                      </option>
 
-              <option value="">
-                Assign Team Member
-              </option>
+                    ))
+                  }
 
-              {members.map((member) => (
+                </select>
 
-                <option
-                  key={member._id}
-                  value={member._id}
+                <select
+                  name="assignedTo"
+                  value={formData.assignedTo}
+                  onChange={handleChange}
                 >
-                  {member.name}
-                </option>
 
-              ))}
+                  <option value="">
+                    Assign Member
+                  </option>
 
-            </select>
+                  {
+                    members.map((member) => (
 
-            <select
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-            >
+                      <option
+                        key={member._id}
+                        value={member._id}
+                      >
+                        {member.name}
+                      </option>
 
-              <option value="low">
-                Low
-              </option>
+                    ))
+                  }
 
-              <option value="medium">
-                Medium
-              </option>
+                </select>
 
-              <option value="high">
-                High
-              </option>
+                <select
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                >
 
-            </select>
+                  <option value="low">
+                    Low
+                  </option>
 
-            <input
-              type="date"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-            />
+                  <option value="medium">
+                    Medium
+                  </option>
 
-            <button
-              onClick={createTask}
-            >
-              Create Task
-            </button>
+                  <option value="high">
+                    High
+                  </option>
 
-          </div>
+                </select>
 
-        )}
+                <input
+                  type="date"
+                  name="dueDate"
+                  value={formData.dueDate}
+                  onChange={handleChange}
+                />
+
+                <button
+                  onClick={createTask}
+                >
+                  Create Task
+                </button>
+
+              </div>
+
+            </div>
+
+          )
+        }
 
         {/* TASK LIST */}
 
         <div className="project-list">
 
-          {tasks.map((task) => (
+          {
+            tasks.map((task) => (
 
-            <div
-              className="project-card"
-              key={task._id}
-            >
+              <div
+                className="project-card"
+                key={task._id}
+              >
 
-              <div>
+                <div>
 
-                <h3>{task.title}</h3>
+                  <h3>
+                    {task.title}
+                  </h3>
 
-                <p>{task.description}</p>
+                  <p>
+                    {task.description}
+                  </p>
 
-                <p>
-                  <strong>Project:</strong>
-                  {" "}
-                  {task.project?.title}
-                </p>
+                  <p>
+                    <strong>
+                      Project:
+                    </strong>
+                    {" "}
+                    {task.project?.title}
+                  </p>
 
-                <p>
-                  <strong>Priority:</strong>
-                  {" "}
-                  {task.priority}
-                </p>
+                  <p>
+                    <strong>
+                      Priority:
+                    </strong>
+                    {" "}
+                    {task.priority}
+                  </p>
 
-                <p>
-                  <strong>Status:</strong>
-                  {" "}
-                  {task.status}
-                </p>
+                  <p>
+                    <strong>
+                      Status:
+                    </strong>
+                    {" "}
+                    {task.status}
+                  </p>
 
-                <p>
-                  <strong>Due Date:</strong>
-                  {" "}
-                  {new Date(
-                    task.dueDate
-                  ).toLocaleDateString()}
-                </p>
-
-              </div>
-
-              {/* MEMBER UPDATE */}
-
-              {user?.role === "member" && (
-
-                <div
-                  className="project-actions"
-                >
-
-                  <button
-                    className="status-btn"
-                    onClick={() =>
-                      updateTaskStatus(
-                        task._id,
-                        "in-progress"
-                      )
+                  <p>
+                    <strong>
+                      Due Date:
+                    </strong>
+                    {" "}
+                    {
+                      new Date(
+                        task.dueDate
+                      ).toLocaleDateString()
                     }
-                  >
-                    In Progress
-                  </button>
-
-                  <button
-                    className="complete-btn"
-                    onClick={() =>
-                      updateTaskStatus(
-                        task._id,
-                        "done"
-                      )
-                    }
-                  >
-                    Done
-                  </button>
+                  </p>
 
                 </div>
 
-              )}
+                {/* MEMBER ACTIONS */}
 
-            </div>
+                {
+                  user?.role === "member" && (
 
-          ))}
+                    <div
+                      className="project-actions"
+                    >
+
+                      <button
+                        className="status-btn"
+                        onClick={() =>
+                          updateTaskStatus(
+                            task._id,
+                            "in-progress"
+                          )
+                        }
+                      >
+                        In Progress
+                      </button>
+
+                      <button
+                        className="complete-btn"
+                        onClick={() =>
+                          updateTaskStatus(
+                            task._id,
+                            "done"
+                          )
+                        }
+                      >
+                        Done
+                      </button>
+
+                    </div>
+
+                  )
+                }
+
+              </div>
+
+            ))
+          }
 
         </div>
 
