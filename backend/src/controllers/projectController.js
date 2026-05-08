@@ -7,7 +7,7 @@ const createProject = async (req, res) => {
 
     try {
 
-        const { title, description, members } = req.body;
+        const { title, description } = req.body;
 
         if (!title || !description) {
 
@@ -20,8 +20,7 @@ const createProject = async (req, res) => {
         const project = await Project.create({
             title,
             description,
-            createdBy: req.user.id,
-            members: members || []
+            createdBy: req.user.id
         });
 
         res.status(201).json({
@@ -41,7 +40,7 @@ const createProject = async (req, res) => {
 
 
 
-// GET PROJECTS
+// GET ALL PROJECTS
 const getProjects = async (req, res) => {
 
     try {
@@ -53,7 +52,8 @@ const getProjects = async (req, res) => {
 
             projects = await Project.find({
                 createdBy: req.user.id
-            }).populate("members", "name email role");
+            })
+            .populate("members", "name email");
         }
 
         // MEMBER
@@ -61,7 +61,8 @@ const getProjects = async (req, res) => {
 
             projects = await Project.find({
                 members: req.user.id
-            }).populate("members", "name email role");
+            })
+            .populate("members", "name email");
         }
 
         res.status(200).json({
@@ -105,8 +106,8 @@ const getMembers = async (req, res) => {
 
 
 
-// ADD MEMBER
-const addMember = async (req, res) => {
+// ADD MEMBER TO PROJECT
+const addMemberToProject = async (req, res) => {
 
     try {
 
@@ -122,7 +123,7 @@ const addMember = async (req, res) => {
             });
         }
 
-        // ONLY CREATOR
+        // ONLY ADMIN
         if (project.createdBy.toString() !== req.user.id) {
 
             return res.status(403).json({
@@ -131,7 +132,7 @@ const addMember = async (req, res) => {
             });
         }
 
-        // PREVENT DUPLICATE
+        // AVOID DUPLICATES
         if (!project.members.includes(userId)) {
 
             project.members.push(userId);
@@ -209,7 +210,7 @@ const deleteProject = async (req, res) => {
             });
         }
 
-        // ONLY CREATOR
+        // ONLY ADMIN
         if (project.createdBy.toString() !== req.user.id) {
 
             return res.status(403).json({
@@ -239,7 +240,7 @@ module.exports = {
     createProject,
     getProjects,
     getMembers,
-    addMember,
+    addMemberToProject,
     updateProjectStatus,
     deleteProject
 };

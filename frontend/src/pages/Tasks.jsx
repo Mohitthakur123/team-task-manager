@@ -11,18 +11,21 @@ function Tasks() {
 
   const [tasks, setTasks] = useState([]);
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] =
+    useState([]);
 
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] =
+    useState([]);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    projectId: "",
-    assignedTo: "",
-    priority: "medium",
-    dueDate: ""
-  });
+  const [formData, setFormData] =
+    useState({
+      title: "",
+      description: "",
+      projectId: "",
+      assignedTo: "",
+      priority: "medium",
+      dueDate: ""
+    });
 
   // FETCH TASKS
   const fetchTasks = async () => {
@@ -30,7 +33,9 @@ function Tasks() {
     try {
 
       const response =
-        await API.get("/tasks/my-tasks");
+        await API.get(
+          "/tasks/my-tasks"
+        );
 
       setTasks(response.data.tasks);
 
@@ -46,7 +51,9 @@ function Tasks() {
     try {
 
       const response =
-        await API.get("/projects/all");
+        await API.get(
+          "/projects/all"
+        );
 
       setProjects(response.data.projects);
 
@@ -62,7 +69,9 @@ function Tasks() {
     try {
 
       const response =
-        await API.get("/projects/members");
+        await API.get(
+          "/projects/members"
+        );
 
       setMembers(response.data.members);
 
@@ -75,9 +84,11 @@ function Tasks() {
   useEffect(() => {
 
     fetchTasks();
-    fetchProjects();
 
     if (user?.role === "admin") {
+
+      fetchProjects();
+
       fetchMembers();
     }
 
@@ -88,7 +99,8 @@ function Tasks() {
 
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]:
+        e.target.value
     });
   };
 
@@ -121,31 +133,30 @@ function Tasks() {
     }
   };
 
-  // UPDATE TASK STATUS
-  // UPDATE TASK STATUS
-// UPDATE TASK STATUS
-const updateTaskStatus = async (
-  taskId,
-  status
-) => {
+  // UPDATE STATUS
+  const updateTaskStatus = async (
+    taskId,
+    status
+  ) => {
 
-  try {
+    try {
 
-    await API.put(
-      "/tasks/update-status",
-      {
-        taskId,
-        status
-      }
-    );
+      await API.put(
+        "/tasks/update-status",
+        {
+          taskId,
+          status
+        }
+      );
 
-    fetchTasks();
+      fetchTasks();
 
-  } catch (error) {
+    } catch (error) {
 
-    console.log(error);
-  }
-};
+      console.log(error);
+    }
+  };
+
   return (
 
     <div className="dashboard-container">
@@ -200,6 +211,7 @@ const updateTaskStatus = async (
                 </option>
 
               ))}
+
             </select>
 
             <select
@@ -209,7 +221,7 @@ const updateTaskStatus = async (
             >
 
               <option value="">
-                Assign Member
+                Assign Team Member
               </option>
 
               {members.map((member) => (
@@ -222,6 +234,7 @@ const updateTaskStatus = async (
                 </option>
 
               ))}
+
             </select>
 
             <select
@@ -251,7 +264,9 @@ const updateTaskStatus = async (
               onChange={handleChange}
             />
 
-            <button onClick={createTask}>
+            <button
+              onClick={createTask}
+            >
               Create Task
             </button>
 
@@ -283,12 +298,6 @@ const updateTaskStatus = async (
                 </p>
 
                 <p>
-                  <strong>Assigned To:</strong>
-                  {" "}
-                  {task.assignedTo?.name}
-                </p>
-
-                <p>
                   <strong>Priority:</strong>
                   {" "}
                   {task.priority}
@@ -310,22 +319,20 @@ const updateTaskStatus = async (
 
               </div>
 
-              {/* MEMBER STATUS UPDATE */}
+              {/* MEMBER UPDATE */}
 
               {user?.role === "member" && (
 
                 <div
-                  style={{
-                    display: "flex",
-                    gap: "10px"
-                  }}
+                  className="project-actions"
                 >
 
                   <button
+                    className="status-btn"
                     onClick={() =>
                       updateTaskStatus(
                         task._id,
-                        "In Progress"
+                        "in-progress"
                       )
                     }
                   >
@@ -333,10 +340,11 @@ const updateTaskStatus = async (
                   </button>
 
                   <button
+                    className="complete-btn"
                     onClick={() =>
                       updateTaskStatus(
                         task._id,
-                        "Done"
+                        "done"
                       )
                     }
                   >

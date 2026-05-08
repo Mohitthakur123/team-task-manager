@@ -6,17 +6,16 @@ const {
     updateTaskStatus
 } = require("../controllers/taskController");
 
-const protect = require("../middleware/authMiddleware");
-const authorizeRoles = require("../middleware/roleMiddleware");
+const protect =
+    require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 
-// CREATE TASK (ADMIN ONLY)
+// CREATE TASK
 router.post(
     "/create",
     protect,
-    authorizeRoles("admin"),
     createTask
 );
 
@@ -31,10 +30,9 @@ router.get(
 
 // UPDATE TASK STATUS
 router.put(
-    "/:id",
+    "/update-status",
     protect,
     updateTaskStatus
 );
-
 
 module.exports = router;

@@ -4,27 +4,25 @@ const {
     createProject,
     getProjects,
     getMembers,
-    addMember,
+    addMemberToProject,
     updateProjectStatus,
     deleteProject
 } = require("../controllers/projectController");
 
 const protect = require("../middleware/authMiddleware");
-const authorizeRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
 
-// CREATE PROJECT (ADMIN)
+// CREATE PROJECT
 router.post(
     "/create",
     protect,
-    authorizeRoles("admin"),
     createProject
 );
 
 
-// GET ALL PROJECTS
+// GET PROJECTS
 router.get(
     "/all",
     protect,
@@ -36,17 +34,15 @@ router.get(
 router.get(
     "/members",
     protect,
-    authorizeRoles("admin"),
     getMembers
 );
 
 
-// ADD MEMBER
+// ADD MEMBER TO PROJECT
 router.put(
     "/add-member",
     protect,
-    authorizeRoles("admin"),
-    addMember
+    addMemberToProject
 );
 
 
@@ -62,9 +58,7 @@ router.put(
 router.delete(
     "/:id",
     protect,
-    authorizeRoles("admin"),
     deleteProject
 );
-
 
 module.exports = router;

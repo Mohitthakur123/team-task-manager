@@ -30,7 +30,8 @@ const createTask = async (req, res) => {
             });
         }
 
-        const project = await Project.findById(projectId);
+        const project =
+            await Project.findById(projectId);
 
         if (!project) {
 
@@ -41,20 +42,28 @@ const createTask = async (req, res) => {
         }
 
         // ONLY PROJECT CREATOR
-        if (project.createdBy.toString() !== req.user.id) {
+        if (
+            project.createdBy.toString()
+            !== req.user.id
+        ) {
 
             return res.status(403).json({
                 success: false,
-                message: "Only admin can create task"
+                message: "Access denied"
             });
         }
 
-        // CHECK MEMBER EXISTS
-        if (!project.members.includes(assignedTo)) {
+        // MEMBER MUST EXIST IN TEAM
+        if (
+            !project.members.includes(
+                assignedTo
+            )
+        ) {
 
             return res.status(400).json({
                 success: false,
-                message: "User is not project member"
+                message:
+                    "User is not project member"
             });
         }
 
@@ -71,7 +80,8 @@ const createTask = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Task created successfully",
+            message:
+                "Task created successfully",
             task
         });
 
@@ -93,27 +103,31 @@ const getTasks = async (req, res) => {
 
         let tasks;
 
-        // ADMIN CAN VIEW CREATED TASKS
+        // ADMIN
         if (req.user.role === "admin") {
 
             tasks = await Task.find({
                 assignedBy: req.user.id
-            });
-
+            })
+            .populate("project", "title")
+            .populate(
+                "assignedTo",
+                "name email"
+            );
         }
 
-        // MEMBER CAN VIEW ASSIGNED TASKS
+        // MEMBER
         else {
 
             tasks = await Task.find({
                 assignedTo: req.user.id
-            });
-        }
-
-        tasks = await tasks
+            })
             .populate("project", "title")
-            .populate("assignedTo", "name email")
-            .populate("assignedBy", "name email");
+            .populate(
+                "assignedBy",
+                "name email"
+            );
+        }
 
         res.status(200).json({
             success: true,
@@ -132,28 +146,17 @@ const getTasks = async (req, res) => {
 
 
 // UPDATE TASK STATUS
-const updateTaskStatus = async (req, res) => {
+const updateTaskStatus = async (
+    req,
+    res
+) => {
 
     try {
 
-        const { status } = req.body;
+        const { taskId, status } = req.body;
 
-        const validStatuses = [
-            "To Do",
-            "In Progress",
-            "Done"
-        ];
-
-        if (!validStatuses.includes(status)) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Invalid task status"
-            });
-        }
-
-        // Find task
-        const task = await Task.findById(req.params.id);
+        const task =
+            await Task.findById(taskId);
 
         if (!task) {
 
@@ -163,12 +166,15 @@ const updateTaskStatus = async (req, res) => {
             });
         }
 
-        // Only assigned member can update
-        if (task.assignedTo.toString() !== req.user.id) {
+        // ONLY ASSIGNED MEMBER
+        if (
+            task.assignedTo.toString()
+            !== req.user.id
+        ) {
 
             return res.status(403).json({
                 success: false,
-                message: "You can update only your tasks"
+                message: "Access denied"
             });
         }
 
@@ -178,7 +184,8 @@ const updateTaskStatus = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Task status updated",
+            message:
+                "Task updated successfully",
             task
         });
 

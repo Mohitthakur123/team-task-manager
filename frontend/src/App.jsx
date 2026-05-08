@@ -1,4 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -6,9 +11,13 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute
+  from "./components/ProtectedRoute";
 
 function App() {
+
+  const user =
+    JSON.parse(localStorage.getItem("user"));
 
   return (
 
@@ -18,14 +27,22 @@ function App() {
 
         {/* PUBLIC ROUTES */}
 
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route
+          path="/"
+          element={<Navigate to="/login" />}
+        />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
-
-        {/* PROTECTED ROUTES */}
+        {/* DASHBOARD */}
 
         <Route
           path="/dashboard"
@@ -36,14 +53,26 @@ function App() {
           }
         />
 
+        {/* PROJECTS - ADMIN ONLY */}
+
         <Route
           path="/projects"
           element={
             <ProtectedRoute>
-              <Projects />
+
+              {
+                user?.role === "admin"
+
+                  ? <Projects />
+
+                  : <Navigate to="/dashboard" />
+              }
+
             </ProtectedRoute>
           }
         />
+
+        {/* TASKS */}
 
         <Route
           path="/tasks"
@@ -57,7 +86,6 @@ function App() {
       </Routes>
 
     </BrowserRouter>
-
   );
 }
 

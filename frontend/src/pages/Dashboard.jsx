@@ -1,39 +1,29 @@
 import {
   FaProjectDiagram,
-  FaClock,
-  FaCheckCircle,
   FaTasks,
-  FaExclamationCircle,
-  FaSignOutAlt,
+  FaClock,
+  FaCheckCircle
 } from "react-icons/fa";
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
+
 import API from "../services/api";
 
 function Dashboard() {
 
-  const navigate = useNavigate();
+  const user =
+    JSON.parse(localStorage.getItem("user"));
 
   const [stats, setStats] = useState({
     totalProjects: 0,
     totalTasks: 0,
     pendingTasks: 0,
-    inProgressTasks: 0,
-    completedTasks: 0,
-    overdueTasks: 0,
+    completedTasks: 0
   });
 
-  const handleLogout = () => {
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    navigate("/login");
-  };
-
+  // FETCH DATA
   const fetchDashboardData = async () => {
 
     try {
@@ -52,13 +42,7 @@ function Dashboard() {
 
       const pendingTasks =
         tasks.filter(
-          (task) => task.status === "todo"
-        );
-
-      const inProgressTasks =
-        tasks.filter(
-          (task) =>
-            task.status === "in-progress"
+          (task) => task.status !== "done"
         );
 
       const completedTasks =
@@ -66,24 +50,13 @@ function Dashboard() {
           (task) => task.status === "done"
         );
 
-      const overdueTasks =
-        tasks.filter(
-          (task) =>
-            new Date(task.dueDate) <
-              new Date() &&
-            task.status !== "done"
-        );
-
       setStats({
         totalProjects: projects.length,
         totalTasks: tasks.length,
-        pendingTasks: pendingTasks.length,
-        inProgressTasks:
-          inProgressTasks.length,
+        pendingTasks:
+          pendingTasks.length,
         completedTasks:
-          completedTasks.length,
-        overdueTasks:
-          overdueTasks.length,
+          completedTasks.length
       });
 
     } catch (error) {
@@ -110,57 +83,112 @@ function Dashboard() {
 
           <div>
 
-            <h1>Dashboard</h1>
+            <h1>
+              Welcome,
+              {" "}
+              {user?.name}
+            </h1>
 
             <p className="dashboard-subtitle">
-              Welcome back
+
+              {
+                user?.role === "admin"
+
+                  ? "Manage projects and teams"
+
+                  : "Track your assigned tasks"
+              }
+
             </p>
 
           </div>
-
-          <button onClick={handleLogout}>
-            <FaSignOutAlt />
-            Logout
-          </button>
 
         </div>
 
         <div className="dashboard-cards">
 
-          <div className="card">
-            <FaProjectDiagram className="card-icon blue" />
-            <h3>Total Projects</h3>
-            <p>{stats.totalProjects}</p>
-          </div>
+          {/* ADMIN ONLY */}
+
+          {user?.role === "admin" && (
+
+            <div className="card">
+
+              <div className="card-top">
+
+                <FaProjectDiagram
+                  className="card-icon blue"
+                />
+
+              </div>
+
+              <h3>Total Projects</h3>
+
+              <p>
+                {stats.totalProjects}
+              </p>
+
+            </div>
+
+          )}
+
+          {/* TOTAL TASKS */}
 
           <div className="card">
-            <FaTasks className="card-icon blue" />
+
+            <div className="card-top">
+
+              <FaTasks
+                className="card-icon blue"
+              />
+
+            </div>
+
             <h3>Total Tasks</h3>
-            <p>{stats.totalTasks}</p>
+
+            <p>
+              {stats.totalTasks}
+            </p>
+
           </div>
 
+          {/* PENDING */}
+
           <div className="card">
-            <FaClock className="card-icon orange" />
+
+            <div className="card-top">
+
+              <FaClock
+                className="card-icon orange"
+              />
+
+            </div>
+
             <h3>Pending Tasks</h3>
-            <p>{stats.pendingTasks}</p>
+
+            <p>
+              {stats.pendingTasks}
+            </p>
+
           </div>
 
-          <div className="card">
-            <FaTasks className="card-icon orange" />
-            <h3>In Progress</h3>
-            <p>{stats.inProgressTasks}</p>
-          </div>
+          {/* COMPLETED */}
 
           <div className="card">
-            <FaCheckCircle className="card-icon green" />
+
+            <div className="card-top">
+
+              <FaCheckCircle
+                className="card-icon green"
+              />
+
+            </div>
+
             <h3>Completed Tasks</h3>
-            <p>{stats.completedTasks}</p>
-          </div>
 
-          <div className="card">
-            <FaExclamationCircle className="card-icon red" />
-            <h3>Overdue Tasks</h3>
-            <p>{stats.overdueTasks}</p>
+            <p>
+              {stats.completedTasks}
+            </p>
+
           </div>
 
         </div>
