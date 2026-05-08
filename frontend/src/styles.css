@@ -704,3 +704,30 @@ body{
 .role-select:focus{
   border-color: #2563eb;
 }
+/* LOGOUT BUTTON */
+
+.logout-btn{
+
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 22px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.logout-btn:hover{
+
+  background: #1d4ed8;
+}
