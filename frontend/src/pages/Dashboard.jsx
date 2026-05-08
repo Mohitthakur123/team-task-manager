@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import {
   FaTasks,
   FaClock,
@@ -12,6 +14,8 @@ import Sidebar from "../components/Sidebar";
 import API from "../services/api";
 
 function Dashboard() {
+
+  const navigate = useNavigate();
 
   const user =
     JSON.parse(
@@ -55,6 +59,17 @@ function Dashboard() {
 
   }, []);
 
+  /* ================= LOGOUT ================= */
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    navigate("/login");
+  };
+
   return (
 
     <div className="dashboard-container">
@@ -62,6 +77,8 @@ function Dashboard() {
       <Sidebar />
 
       <div className="dashboard-main">
+
+        {/* HEADER */}
 
         <div className="dashboard-header">
 
@@ -85,7 +102,20 @@ function Dashboard() {
 
           </div>
 
+          {/* LOGOUT BUTTON */}
+
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+
+            Logout
+
+          </button>
+
         </div>
+
+        {/* DASHBOARD CARDS */}
 
         <div className="dashboard-cards">
 
