@@ -15,6 +15,7 @@ const createTask = async (req, res) => {
             priority,
             dueDate
         } = req.body;
+
         const validPriorities = [
             "low",
             "medium",
@@ -31,6 +32,7 @@ const createTask = async (req, res) => {
                 message: "Invalid priority value"
             });
         }
+
         // Validation
         if (
             !title ||
@@ -39,6 +41,7 @@ const createTask = async (req, res) => {
             !assignedTo ||
             !dueDate
         ) {
+
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -49,13 +52,14 @@ const createTask = async (req, res) => {
         const project = await Project.findById(projectId);
 
         if (!project) {
+
             return res.status(404).json({
                 success: false,
                 message: "Project not found"
             });
         }
 
-        // Only project admin can create tasks
+        // Only admin can create tasks
         if (project.admin.toString() !== req.user.id) {
 
             return res.status(403).json({
@@ -106,9 +110,26 @@ const getTasks = async (req, res) => {
 
     try {
 
-        const tasks = await Task.find({
-            assignedTo: req.user.id
-        })
+        let tasks;
+
+        // ADMIN CAN VIEW CREATED TASKS
+        if (req.user.role === "admin") {
+
+            tasks = await Task.find({
+                assignedBy: req.user.id
+            });
+
+        }
+
+        // MEMBER CAN VIEW ASSIGNED TASKS
+        else {
+
+            tasks = await Task.find({
+                assignedTo: req.user.id
+            });
+        }
+
+        tasks = await tasks
             .populate("project", "title")
             .populate("assignedTo", "name email")
             .populate("assignedBy", "name email");
@@ -134,11 +155,12 @@ const updateTaskStatus = async (req, res) => {
 
     try {
 
-        const { taskId, status } = req.body;
+        const { status } = req.body;
+
         const validStatuses = [
-            "todo",
-            "in-progress",
-            "done"
+            "To Do",
+            "In Progress",
+            "Done"
         ];
 
         if (!validStatuses.includes(status)) {
@@ -150,16 +172,17 @@ const updateTaskStatus = async (req, res) => {
         }
 
         // Find task
-        const task = await Task.findById(taskId);
+        const task = await Task.findById(req.params.id);
 
         if (!task) {
+
             return res.status(404).json({
                 success: false,
                 message: "Task not found"
             });
         }
 
-        // Only assigned user can update
+        // Only assigned member can update
         if (task.assignedTo.toString() !== req.user.id) {
 
             return res.status(403).json({

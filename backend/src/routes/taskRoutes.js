@@ -12,7 +12,7 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 const router = express.Router();
 
 
-// CREATE TASK (Admin Only)
+// CREATE TASK (ADMIN ONLY)
 router.post(
     "/create",
     protect,
@@ -21,7 +21,7 @@ router.post(
 );
 
 
-// GET MY TASKS
+// GET TASKS
 router.get(
     "/my-tasks",
     protect,
@@ -31,7 +31,7 @@ router.get(
 
 // UPDATE TASK STATUS
 router.put(
-    "/update-status",
+    "/:id",
     protect,
     updateTaskStatus
 );

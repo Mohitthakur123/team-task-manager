@@ -2,26 +2,39 @@ const express = require("express");
 
 const {
     signup,
-    login
+    login,
+    getProfile
 } = require("../controllers/authController");
 
-const router = express.Router();
 const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
-// Signup
-router.post("/signup", signup);
 
-// Login
-router.post("/login", login);
-router.get("/profile", protect, (req, res) => {
+const router = express.Router();
 
-    res.status(200).json({
-        success: true,
-        message: "Protected route accessed",
-        user: req.user
-    });
 
-});
+// SIGNUP
+router.post(
+    "/signup",
+    signup
+);
+
+
+// LOGIN
+router.post(
+    "/login",
+    login
+);
+
+
+// PROFILE
+router.get(
+    "/profile",
+    protect,
+    getProfile
+);
+
+
+// ADMIN ONLY TEST ROUTE
 router.get(
     "/admin-only",
     protect,

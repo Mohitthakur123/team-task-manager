@@ -7,22 +7,21 @@ const createProject = async (req, res) => {
 
     try {
 
-        const { title, description, members } = req.body;
+        const { title, description } = req.body;
 
-        // Validation
         if (!title || !description) {
+
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             });
         }
 
-        // Create project
         const project = await Project.create({
             title,
             description,
             admin: req.user.id,
-            members
+            members: []
         });
 
         res.status(201).json({
@@ -42,37 +41,30 @@ const createProject = async (req, res) => {
 
 
 
-// GET ALL PROJECTS
-// GET ALL PROJECTS
-
+// GET PROJECTS
 const getProjects = async (req, res) => {
 
     try {
 
         let projects;
 
-        // ADMIN CAN SEE ALL PROJECTS CREATED BY HIM
-
+        // ADMIN
         if (req.user.role === "admin") {
 
             projects = await Project.find({
                 admin: req.user.id
             })
-            .populate("admin", "name email role")
             .populate("members", "name email role");
 
         }
 
-        // MEMBERS CAN SEE ASSIGNED PROJECTS
-
+        // MEMBER
         else {
 
             projects = await Project.find({
                 members: req.user.id
             })
-            .populate("admin", "name email role")
-            .populate("members", "name email role");
-
+            .populate("admin", "name email role");
         }
 
         res.status(200).json({
@@ -88,6 +80,7 @@ const getProjects = async (req, res) => {
         });
     }
 };
+
 
 
 // GET MEMBERS
@@ -114,6 +107,7 @@ const getMembers = async (req, res) => {
 };
 
 
+
 // ADD MEMBER TO PROJECT
 const addMember = async (req, res) => {
 
@@ -121,43 +115,34 @@ const addMember = async (req, res) => {
 
         const { projectId, userId } = req.body;
 
-        // Check fields
-        if (!projectId || !userId) {
-            return res.status(400).json({
-                success: false,
-                message: "Project ID and User ID required"
-            });
-        }
-
-        // Find project
         const project = await Project.findById(projectId);
 
         if (!project) {
+
             return res.status(404).json({
                 success: false,
                 message: "Project not found"
             });
         }
 
-        // Only admin can add members
+        // ONLY ADMIN
         if (project.admin.toString() !== req.user.id) {
 
             return res.status(403).json({
                 success: false,
-                message: "Only admin can add members"
+                message: "Access denied"
             });
         }
 
-        // Prevent duplicate members
+        // PREVENT DUPLICATES
         if (project.members.includes(userId)) {
 
             return res.status(400).json({
                 success: false,
-                message: "User already added"
+                message: "Member already added"
             });
         }
 
-        // Add member
         project.members.push(userId);
 
         await project.save();
@@ -176,15 +161,17 @@ const addMember = async (req, res) => {
         });
     }
 };
-// UPDATE PROJECT STATUS
 
+
+
+// UPDATE PROJECT STATUS
 const updateProjectStatus = async (req, res) => {
 
     try {
 
-        const { projectId, status } = req.body;
+        const { status } = req.body;
 
-        const project = await Project.findById(projectId);
+        const project = await Project.findById(req.params.id);
 
         if (!project) {
 
@@ -194,15 +181,13 @@ const updateProjectStatus = async (req, res) => {
             });
         }
 
-        // UPDATE STATUS
-
         project.status = status;
 
         await project.save();
 
         res.status(200).json({
             success: true,
-            message: "Project status updated",
+            message: "Project updated successfully",
             project
         });
 
@@ -212,11 +197,12 @@ const updateProjectStatus = async (req, res) => {
             success: false,
             message: error.message
         });
-
     }
 };
-// DELETE PROJECT
 
+
+
+// DELETE PROJECT
 const deleteProject = async (req, res) => {
 
     try {
@@ -231,13 +217,12 @@ const deleteProject = async (req, res) => {
             });
         }
 
-        // ONLY ADMIN CAN DELETE
-
+        // ONLY ADMIN
         if (project.admin.toString() !== req.user.id) {
 
             return res.status(403).json({
                 success: false,
-                message: "Only admin can delete project"
+                message: "Access denied"
             });
         }
 
@@ -256,11 +241,13 @@ const deleteProject = async (req, res) => {
         });
     }
 };
+
+
 module.exports = {
     createProject,
     getProjects,
-    addMember,
     getMembers,
+    addMember,
     updateProjectStatus,
     deleteProject
 };

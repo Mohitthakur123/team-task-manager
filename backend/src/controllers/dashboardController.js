@@ -1,35 +1,52 @@
 const Task = require("../models/Task");
+const Project = require("../models/Project");
 
 const getDashboardData = async (req, res) => {
 
     try {
 
-        // Total tasks
-        const totalTasks = await Task.countDocuments();
+        // Total Projects
+        const totalProjects = await Project.countDocuments({
+            admin: req.user.id
+        });
 
-        // Completed tasks
+        // Total Tasks
+        const totalTasks = await Task.countDocuments({
+            assignedBy: req.user.id
+        });
+
+        // Completed Tasks
         const completedTasks = await Task.countDocuments({
-            status: "done"
+            assignedBy: req.user.id,
+            status: "Done"
         });
 
-        // Pending tasks
+        // Pending Tasks
         const pendingTasks = await Task.countDocuments({
-            status: "todo"
+            assignedBy: req.user.id,
+            status: "To Do"
         });
 
-        // In-progress tasks
+        // In Progress Tasks
         const inProgressTasks = await Task.countDocuments({
-            status: "in-progress"
+            assignedBy: req.user.id,
+            status: "In Progress"
         });
 
-        // Overdue tasks
-        const overdueTasks = await Task.find({
+        // Overdue Tasks
+        const overdueTasks = await Task.countDocuments({
+            assignedBy: req.user.id,
             dueDate: { $lt: new Date() },
-            status: { $ne: "done" }
+            status: { $ne: "Done" }
         });
 
-        // Tasks grouped by user
+        // Tasks Per User
         const tasksPerUser = await Task.aggregate([
+            {
+                $match: {
+                    assignedBy: req.user._id
+                }
+            },
             {
                 $group: {
                     _id: "$assignedTo",
@@ -42,11 +59,12 @@ const getDashboardData = async (req, res) => {
             success: true,
 
             dashboard: {
+                totalProjects,
                 totalTasks,
                 completedTasks,
                 pendingTasks,
                 inProgressTasks,
-                overdueTasksCount: overdueTasks.length,
+                overdueTasks,
                 tasksPerUser
             }
         });
