@@ -1,21 +1,20 @@
 const express = require("express");
 
-const {
-    getDashboardData
-} = require("../controllers/dashboardController");
-
-const protect = require("../middleware/authMiddleware");
-const authorizeRoles = require("../middleware/roleMiddleware");
-
 const router = express.Router();
 
+const {
+  getDashboardData
+} = require(
+  "../controllers/dashboardController"
+);
 
-// Admin only dashboard
+const authMiddleware =
+  require("../middleware/authMiddleware");
+
 router.get(
-    "/",
-    protect,
-    authorizeRoles("admin"),
-    getDashboardData
+  "/",
+  authMiddleware,
+  getDashboardData
 );
 
 module.exports = router;

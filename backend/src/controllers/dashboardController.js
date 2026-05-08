@@ -1,112 +1,106 @@
-const Task =
-    require("../models/Task");
-
 const Project =
-    require("../models/Project");
+  require("../models/Project");
 
-const getDashboardData =
-    async (req, res) => {
+const Task =
+  require("../models/Task");
 
-        try {
+exports.getDashboardData =
+  async (req, res) => {
 
-            // TOTAL PROJECTS
+    try {
 
-            const totalProjects =
-                await Project.countDocuments({
-                    createdBy: req.user.id
-                });
+      let totalProjects = 0;
 
-            // TOTAL TASKS
+      let totalTasks = 0;
 
-            const totalTasks =
-                await Task.countDocuments({
-                    assignedBy: req.user.id
-                });
+      let pendingTasks = 0;
 
-            // COMPLETED TASKS
+      let completedTasks = 0;
 
-            const completedTasks =
-                await Task.countDocuments({
+      let overdueTasks = 0;
 
-                    assignedBy:
-                        req.user.id,
+      if (req.user.role === "admin") {
 
-                    status: "done"
-                });
+        totalProjects =
+          await Project.countDocuments();
 
-            // PENDING TASKS
+        totalTasks =
+          await Task.countDocuments();
 
-            const pendingTasks =
-                await Task.countDocuments({
+        pendingTasks =
+          await Task.countDocuments({
+            status: "todo"
+          });
 
-                    assignedBy:
-                        req.user.id,
+        completedTasks =
+          await Task.countDocuments({
+            status: "done"
+          });
 
-                    status: {
-                        $ne: "done"
-                    }
-                });
+        overdueTasks =
+          await Task.countDocuments({
+            status: "overdue"
+          });
 
-            // OVERDUE TASKS
+      } else {
 
-            const overdueTasks =
-                await Task.find({
+        totalTasks =
+          await Task.countDocuments({
 
-                    assignedBy:
-                        req.user.id,
+            assignedTo:
+              req.user.id
+          });
 
-                    dueDate: {
-                        $lt: new Date()
-                    },
+        pendingTasks =
+          await Task.countDocuments({
 
-                    status: {
-                        $ne: "done"
-                    }
-                })
+            assignedTo:
+              req.user.id,
 
-                    .populate(
-                        "project",
-                        "title"
-                    )
+            status: "todo"
+          });
 
-                    .populate(
-                        "assignedTo",
-                        "name"
-                    );
+        completedTasks =
+          await Task.countDocuments({
 
-            res.status(200).json({
+            assignedTo:
+              req.user.id,
 
-                success: true,
+            status: "done"
+          });
 
-                dashboard: {
+        overdueTasks =
+          await Task.countDocuments({
 
-                    totalProjects,
+            assignedTo:
+              req.user.id,
 
-                    totalTasks,
+            status: "overdue"
+          });
+      }
 
-                    completedTasks,
+      res.status(200).json({
 
-                    pendingTasks,
+        success: true,
 
-                    overdueTasksCount:
-                        overdueTasks.length,
+        totalProjects,
 
-                    overdueTasks
-                }
-            });
+        totalTasks,
 
-        } catch (error) {
+        pendingTasks,
 
-            res.status(500).json({
+        completedTasks,
 
-                success: false,
+        overdueTasks
+      });
 
-                message:
-                    error.message
-            });
-        }
-    };
+    } catch (error) {
 
-module.exports = {
-    getDashboardData
-};
+      res.status(500).json({
+
+        success: false,
+
+        message: error.message
+      });
+    }
+  };
