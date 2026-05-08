@@ -223,6 +223,7 @@ body{
 /* ================= PROJECTS PAGE ================= */
 
 .projects-page{
+  flex: 1;
   padding: 35px;
 }
 
@@ -231,33 +232,56 @@ body{
 }
 
 .project-header h1{
-  font-size: 40px;
+  font-size: 42px;
   color: #111827;
+  font-weight: bold;
 }
+
+/* FORM */
 
 .project-form{
-  display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  margin-bottom: 35px;
 }
 
-.project-form input{
-  flex: 1;
-  padding: 14px;
+.project-form input,
+.project-form select{
+  width: 100%;
+  padding: 15px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
-  font-size: 16px;
+  font-size: 15px;
+  outline: none;
+  background: #fff;
+}
+
+.project-form input:focus,
+.project-form select:focus{
+  border-color: #2563eb;
 }
 
 .project-form button{
   background: #2563eb;
   color: white;
   border: none;
-  padding: 14px 22px;
+  padding: 15px;
   border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
+  transition: 0.3s;
 }
+
+.project-form button:hover{
+  background: #1d4ed8;
+}
+
+/* PROJECT/TASK LIST */
 
 .project-list{
   display: grid;
@@ -266,47 +290,170 @@ body{
 
 .project-card{
   background: white;
-  padding: 22px;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.06);
 
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 20px;
+
+  transition: 0.3s;
+}
+
+.project-card:hover{
+  transform: translateY(-3px);
 }
 
 .project-card h3{
   font-size: 24px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  color: #111827;
 }
 
 .project-card p{
-  color: #6b7280;
+  color: #4b5563;
+  margin-bottom: 8px;
+  line-height: 1.5;
 }
+
+/* BUTTON AREA */
+
+.project-actions{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* COMPLETE BUTTON */
+
+.complete-btn{
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.complete-btn:hover{
+  background: #059669;
+}
+
+/* DELETE BUTTON */
 
 .delete-btn{
   background: crimson;
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 11px 18px;
   border-radius: 8px;
   cursor: pointer;
+  transition: 0.3s;
 }
-.project-form select {
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  min-width: 220px;
-  font-size: 16px;
-  background: white;
-  height: 55px;
+
+.delete-btn:hover{
+  opacity: 0.9;
 }
-.complete-btn{
-  background-color: green;
+
+/* TASK STATUS BUTTONS */
+
+.status-btn{
+  background: #2563eb;
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 11px 18px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.status-btn:hover{
+  background: #1d4ed8;
+}
+
+/* STATUS BADGES */
+
+.status-badge{
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.completed{
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pending{
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.progress{
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 900px){
+
+  .dashboard-container{
+    flex-direction: column;
+  }
+
+  .sidebar{
+    width: 100%;
+    padding: 20px;
+  }
+
+  .sidebar h2{
+    margin-bottom: 20px;
+  }
+
+  .sidebar ul{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .project-card{
+    flex-direction: column;
+  }
+
+  .project-actions{
+    width: 100%;
+  }
+}
+
+@media(max-width: 600px){
+
+  .dashboard-main,
+  .projects-page{
+    padding: 20px;
+  }
+
+  .dashboard-header{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .dashboard-header h1{
+    font-size: 34px;
+  }
+
+  .project-header h1{
+    font-size: 34px;
+  }
+
+  .card p{
+    font-size: 34px;
+  }
 }

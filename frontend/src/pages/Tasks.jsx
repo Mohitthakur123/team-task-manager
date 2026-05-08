@@ -122,26 +122,30 @@ function Tasks() {
   };
 
   // UPDATE TASK STATUS
-  const updateTaskStatus = async (
-    taskId,
-    status
-  ) => {
+  // UPDATE TASK STATUS
+// UPDATE TASK STATUS
+const updateTaskStatus = async (
+  taskId,
+  status
+) => {
 
-    try {
+  try {
 
-      await API.put(
-        `/tasks/${taskId}`,
-        { status }
-      );
+    await API.put(
+      "/tasks/update-status",
+      {
+        taskId,
+        status
+      }
+    );
 
-      fetchTasks();
+    fetchTasks();
 
-    } catch (error) {
+  } catch (error) {
 
-      console.log(error);
-    }
-  };
-
+    console.log(error);
+  }
+};
   return (
 
     <div className="dashboard-container">
