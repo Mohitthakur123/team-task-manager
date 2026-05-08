@@ -1,9 +1,16 @@
-const Task = require("../models/Task");
-const Project = require("../models/Project");
+const Task =
+    require("../models/Task");
+
+const Project =
+    require("../models/Project");
 
 
 // CREATE TASK
-const createTask = async (req, res) => {
+
+const createTask = async (
+    req,
+    res
+) => {
 
     try {
 
@@ -16,191 +23,284 @@ const createTask = async (req, res) => {
             dueDate
         } = req.body;
 
+        // VALIDATION
+
         if (
             !title ||
             !description ||
             !projectId ||
             !assignedTo ||
+            assignedTo.length === 0 ||
             !dueDate
         ) {
 
             return res.status(400).json({
                 success: false,
-                message: "All fields are required"
+                message:
+                    "All fields are required"
             });
         }
 
+        // FIND PROJECT
+
         const project =
-            await Project.findById(projectId);
+            await Project.findById(
+                projectId
+            );
 
         if (!project) {
 
             return res.status(404).json({
                 success: false,
-                message: "Project not found"
+                message:
+                    "Project not found"
             });
         }
 
-        // ONLY PROJECT CREATOR
-        if (
-            project.createdBy.toString()
-            !== req.user.id
-        ) {
+        // CHECK ALL MEMBERS BELONG TO PROJECT
 
-            return res.status(403).json({
-                success: false,
-                message: "Access denied"
-            });
-        }
+        const allMembersValid =
+            assignedTo.every(
+                (memberId) =>
+                    project.members.includes(
+                        memberId
+                    )
+            );
 
-        // MEMBER MUST EXIST IN TEAM
-        if (
-            !project.members.includes(
-                assignedTo
-            )
-        ) {
+        if (!allMembersValid) {
 
             return res.status(400).json({
                 success: false,
                 message:
-                    "User is not project member"
+                    "Some users are not project members"
             });
         }
 
-        const task = await Task.create({
-            title,
-            description,
-            project: projectId,
-            assignedTo,
-            assignedBy: req.user.id,
-            priority,
-            dueDate,
-            status: "todo"
-        });
+        // CREATE TASK
+
+        const task =
+            await Task.create({
+
+                title,
+
+                description,
+
+                project: projectId,
+
+                assignedTo,
+
+                assignedBy:
+                    req.user.id,
+
+                priority,
+
+                dueDate,
+
+                status: "todo"
+            });
 
         res.status(201).json({
+
             success: true,
+
             message:
                 "Task created successfully",
+
             task
         });
 
     } catch (error) {
 
         res.status(500).json({
+
             success: false,
-            message: error.message
+
+            message:
+                error.message
         });
     }
 };
-
 
 
 // GET TASKS
-const getTasks = async (req, res) => {
 
-    try {
-
-        let tasks;
-
-        // ADMIN
-        if (req.user.role === "admin") {
-
-            tasks = await Task.find({
-                assignedBy: req.user.id
-            })
-            .populate("project", "title")
-            .populate(
-                "assignedTo",
-                "name email"
-            );
-        }
-
-        // MEMBER
-        else {
-
-            tasks = await Task.find({
-                assignedTo: req.user.id
-            })
-            .populate("project", "title")
-            .populate(
-                "assignedBy",
-                "name email"
-            );
-        }
-
-        res.status(200).json({
-            success: true,
-            tasks
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
-
-
-
-// UPDATE TASK STATUS
-const updateTaskStatus = async (
+const getTasks = async (
     req,
     res
 ) => {
 
     try {
 
-        const { taskId, status } = req.body;
+        let tasks;
 
-        const task =
-            await Task.findById(taskId);
+        // ADMIN TASKS
 
-        if (!task) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Task not found"
-            });
-        }
-
-        // ONLY ASSIGNED MEMBER
         if (
-            task.assignedTo.toString()
-            !== req.user.id
+            req.user.role !== "member"
         ) {
 
-            return res.status(403).json({
-                success: false,
-                message: "Access denied"
-            });
+            tasks =
+                await Task.find({
+
+                    assignedBy:
+                        req.user.id,
+
+                    status: {
+                        $ne: "done"
+                    }
+                })
+
+                    .populate(
+                        "project",
+                        "title"
+                    )
+
+                    .populate(
+                        "assignedTo",
+                        "name email"
+                    )
+
+                    .populate(
+                        "assignedBy",
+                        "name email"
+                    );
         }
 
-        task.status = status;
+        // MEMBER TASKS
 
-        await task.save();
+        else {
+
+            tasks =
+                await Task.find({
+
+                    assignedTo: {
+                        $in: [req.user.id]
+                    }
+                })
+
+                    .populate(
+                        "project",
+                        "title"
+                    )
+
+                    .populate(
+                        "assignedTo",
+                        "name email"
+                    )
+
+                    .populate(
+                        "assignedBy",
+                        "name email"
+                    );
+        }
 
         res.status(200).json({
+
             success: true,
-            message:
-                "Task updated successfully",
-            task
+
+            tasks
         });
 
     } catch (error) {
 
         res.status(500).json({
+
             success: false,
-            message: error.message
+
+            message:
+                error.message
         });
     }
 };
 
 
+// UPDATE STATUS
+
+const updateTaskStatus =
+    async (req, res) => {
+
+        try {
+
+            const {
+                taskId,
+                status
+            } = req.body;
+
+            const task =
+                await Task.findById(
+                    taskId
+                );
+
+            if (!task) {
+
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Task not found"
+                });
+            }
+
+            // CHECK USER ASSIGNED
+
+            const isAssigned =
+                task.assignedTo.includes(
+                    req.user.id
+                );
+
+            if (!isAssigned) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Not authorized"
+                });
+            }
+
+            // TASK ALREADY DONE
+
+            if (
+                task.status === "done"
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Task already completed"
+                });
+            }
+
+            task.status = status;
+
+            await task.save();
+
+            res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Task updated successfully",
+
+                task
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    error.message
+            });
+        }
+    };
+
+
 module.exports = {
+
     createTask,
+
     getTasks,
+
     updateTaskStatus
 };
