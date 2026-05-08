@@ -169,32 +169,53 @@ function Tasks() {
 
               {/* MULTIPLE MEMBERS */}
 
-              <div className="member-select-container">
-                {members.map((member) => {
-                  const isSelected = formData.assignedTo.includes(member._id);
+              <select
+                className="task-select"
+                value=""
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+
+                  if (selectedId && !formData.assignedTo.includes(selectedId)) {
+                    setFormData({
+                      ...formData,
+
+                      assignedTo: [...formData.assignedTo, selectedId],
+                    });
+                  }
+                }}
+              >
+                <option value="">Assign Members</option>
+
+                {members.map((member) => (
+                  <option key={member._id} value={member._id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+
+              <div className="selected-members">
+                {formData.assignedTo.map((memberId) => {
+                  const member = members.find((m) => m._id === memberId);
 
                   return (
-                    <select
-                      multiple
-                      className="multi-select"
-                      value={formData.assignedTo}
-                      onChange={(e) => {
-                        const values = [...e.target.selectedOptions].map(
-                          (option) => option.value,
-                        );
+                    <div key={memberId} className="member-pill">
+                      <span>{member?.name}</span>
 
-                        setFormData({
-                          ...formData,
-                          assignedTo: values,
-                        });
-                      }}
-                    >
-                      {members.map((member) => (
-                        <option key={member._id} value={member._id}>
-                          {member.name}
-                        </option>
-                      ))}
-                    </select>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+
+                            assignedTo: formData.assignedTo.filter(
+                              (id) => id !== memberId,
+                            ),
+                          });
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
                   );
                 })}
               </div>

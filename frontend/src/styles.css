@@ -452,3 +452,84 @@ body{
     font-size: 34px;
   }
 }
+/* CUSTOM MULTI SELECT */
+
+.custom-multi-select{
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.dropdown-label{
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.dropdown-options{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.dropdown-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.dropdown-item input{
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+/* TASK SELECT */
+
+.task-select{
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 15px;
+  background: white;
+}
+
+/* SELECTED MEMBERS */
+
+.selected-members{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.member-pill{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #2563eb;
+  color: white;
+
+  padding: 8px 14px;
+  border-radius: 30px;
+
+  font-size: 14px;
+}
+
+.member-pill button{
+  border: none;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}

@@ -7,123 +7,21 @@ const Project =
 
 // CREATE TASK
 
-const createTask = async (
-    req,
-    res
-) => {
+const task = await Task.create({
 
-    try {
+  title,
+  description,
 
-        const {
-            title,
-            description,
-            projectId,
-            assignedTo,
-            priority,
-            dueDate
-        } = req.body;
+  project,
 
-        // VALIDATION
+  assignedTo,
 
-        if (
-            !title ||
-            !description ||
-            !projectId ||
-            !assignedTo ||
-            assignedTo.length === 0 ||
-            !dueDate
-        ) {
+  priority,
 
-            return res.status(400).json({
-                success: false,
-                message:
-                    "All fields are required"
-            });
-        }
+  dueDate,
 
-        // FIND PROJECT
-
-        const project =
-            await Project.findById(
-                projectId
-            );
-
-        if (!project) {
-
-            return res.status(404).json({
-                success: false,
-                message:
-                    "Project not found"
-            });
-        }
-
-        // CHECK ALL MEMBERS BELONG TO PROJECT
-
-       const allMembersValid =
-    assignedTo.every(
-        (memberId) =>
-
-            project.members.some(
-                (member) =>
-
-                    member.toString()
-                    === memberId
-            )
-    );
-
-        if (!allMembersValid) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Some users are not project members"
-            });
-        }
-
-        // CREATE TASK
-
-        const task =
-            await Task.create({
-
-                title,
-
-                description,
-
-                project: projectId,
-
-                assignedTo,
-
-                assignedBy:
-                    req.user.id,
-
-                priority,
-
-                dueDate,
-
-                status: "todo"
-            });
-
-        res.status(201).json({
-
-            success: true,
-
-            message:
-                "Task created successfully",
-
-            task
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                error.message
-        });
-    }
-};
+  createdBy: req.user.id
+});
 
 
 // GET TASKS
