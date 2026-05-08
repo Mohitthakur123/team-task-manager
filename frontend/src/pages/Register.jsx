@@ -1,6 +1,9 @@
 import { useState } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate
+} from "react-router-dom";
 
 import API from "../services/api";
 
@@ -8,30 +11,48 @@ function Register() {
 
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "member"
-  });
+  const [formData, setFormData] =
+    useState({
+
+      name: "",
+
+      email: "",
+
+      password: "",
+
+      role: "member"
+    });
+
+  /* ================= HANDLE INPUT ================= */
 
   const handleChange = (e) => {
 
     setFormData({
+
       ...formData,
-      [e.target.name]: e.target.value
+
+      [e.target.name]:
+        e.target.value
     });
   };
 
-  const handleRegister = async (e) => {
+  /* ================= REGISTER ================= */
+
+  const handleRegister =
+    async (e) => {
 
     e.preventDefault();
 
     try {
 
-      await API.post("/auth/signup", formData);
+      await API.post(
+        "/auth/signup",
+        formData
+      );
 
-      alert("Registration Successful");
+      alert(
+        "Registration Successful"
+      );
 
       navigate("/login");
 
@@ -39,7 +60,9 @@ function Register() {
 
       console.log(error);
 
-      alert("Registration Failed");
+      alert(
+        "Registration Failed"
+      );
     }
   };
 
@@ -53,52 +76,88 @@ function Register() {
 
         <form onSubmit={handleRegister}>
 
+          {/* NAME */}
+
           <input
             type="text"
             name="name"
             placeholder="Enter Name"
+            value={formData.name}
             onChange={handleChange}
+            required
           />
+
+          {/* EMAIL */}
 
           <input
             type="email"
             name="email"
             placeholder="Enter Email"
+            value={formData.email}
             onChange={handleChange}
+            required
           />
+
+          {/* PASSWORD */}
 
           <input
             type="password"
             name="password"
             placeholder="Enter Password"
+            value={formData.password}
             onChange={handleChange}
+            required
           />
 
-          <select
-            name="role"
-            onChange={handleChange}
-          >
-            <option value="member">
-              Member
-            </option>
+          {/* ROLE */}
 
-            <option value="admin">
-              Admin
-            </option>
-          </select>
+          <div className="role-wrapper">
+
+            <label>
+              Select Role
+            </label>
+
+            <select
+              className="role-select"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+            >
+
+              <option value="member">
+                Member
+              </option>
+
+              <option value="admin">
+                Admin
+              </option>
+
+            </select>
+
+          </div>
+
+          {/* BUTTON */}
 
           <button type="submit">
+
             Register
+
           </button>
 
         </form>
 
         <p>
+
           Already have an account?
+
           {" "}
+
           <Link to="/login">
+
             Login
+
           </Link>
+
         </p>
 
       </div>
